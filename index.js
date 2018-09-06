@@ -29,7 +29,7 @@ function HttpError(statusCode, message) {
 var app = express()
     .use(bodyParser.urlencoded({ extended : true}))
     .use(bodyParser.json())
-    .use(morgan('tiny'/*'combined'*/))
+    .use(morgan(/*'tiny'*/'combined'))
     .use(cors())
     .use(express.static(path.join(__dirname, 'public')));
 
