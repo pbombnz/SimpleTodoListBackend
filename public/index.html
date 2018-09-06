@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>My To-Do List</title>
+    <link href="css/todo.css" rel="stylesheet">
+    <link href="css/jquery-ui.min.css" rel="stylesheet">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+
+    <script src="todo.js"></script>
+
+    <style>
+        #loadingDiv {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            z-index: 2;
+            background: rgba(0,0,0,0.7);
+        }
+
+        #loadingDiv img {
+            position:absolute;
+            top:0;
+            bottom:0;
+            left: 0;
+            right: 0; 
+            margin:auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loadingDiv" style="position: absolute;">
+        <img src="ajax-loader.gif"/>
+    </div>
+    <div class="container">
+        <div id="to-do">
+            <h1>My To-do List</h1>
+            <!-- add button here -->
+            <button id="add-todo">Add to-do item</button>
+
+
+            <h2>To Be Done</h2>
+            <ul id="todo-list" class="sortlist">
+
+            </ul>
+        </div>
+        <div id="completed">
+            <h2>Completed Tasks</h2>
+            <ul id="completed-list" class="sortlist">
+
+            </ul>
+        </div>
+
+        <!-- Error box -->
+        <div id="error-dialog" title="Error">
+            <p style="text-align: center">
+
+            </p>
+        </div>
+
+        <!-- add dialog box here -->
+        <div id="new-todo" title="Add to-do item">
+            <form>
+                <p>
+                    <label for="task">Task Name:</label>
+                    <input type="text" name="task" id="task">
+                </p>
+            </form>
+        </div>
+
+        <!-- edit dialog box here -->
+        <div id="edit-todo" title="Edit to-do item">
+            <form>
+                <p>
+                    <label for="task">Task Name:</label>
+                    <input type="text" name="task" id="task2">
+                </p>
+            </form>
+        </div>
+
+        <!-- edit confirmation dialog box here -->
+        <div id="edit-confirm-todo" title="Confirm Edit">
+            <p>
+                Do you want to confirm edit?
+            </p>
+        </div>
+
+        <!-- delete confirmation dialog box here -->
+        <div id="delete-confirm-todo" title="Confirm deletion">
+            <p>
+                Do you want to confirm deletion?
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
