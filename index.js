@@ -17,10 +17,11 @@ var pool = new pg.Pool({
 });
 
 
-// Tester functions
-function testOutput(res) {
-    let version = 1;
-    res.send("version "+version+" :" + Date.now().toString());
+// Helper functions
+function HttpError(statusCode, message) {
+    var err = new Error(message);
+    err.statusCode = statusCode;
+    return err;
 }
 
 
@@ -43,7 +44,7 @@ app.get('/db', async (req, res) => {
         const client = await pool.connect()
         var result = await client.query('SELECT * FROM todo');   
         if (!result) {
-            throw new Error('No Data yet.');
+            throw new HttpError(503, 'Failure to retrieve data.')
         }// else {
         //    result.rows.forEach(row=> { console.log(row); }); 
         //}
@@ -55,7 +56,7 @@ app.get('/db', async (req, res) => {
             err = err.error;
         }    
         //console.error(err);
-        res.status(400).send({success :false, error : err.message});
+        res.status(err.statusCode || 400).send({success :false, error : err.message});
     }
 });
 
@@ -64,7 +65,7 @@ app.get('/tasks', async (req, res) => {
         const client = await pool.connect()
         var result = await client.query('SELECT * FROM todo ORDER BY id');   
         if (!result) {
-            throw new Error('No tasks exists yet.');
+            throw new HttpError(503, 'Failure to retrieve data.');
         }
         res.type('application/json');
         res.send({success : true, data : result.rows});
@@ -74,7 +75,7 @@ app.get('/tasks', async (req, res) => {
             err = err.error;
         }    
         //console.error(err);
-        res.status(400).send({success : false, error : err.message});
+        res.status(err.statusCode || 400).send({success : false, error : err.message});
     }
 });
 
@@ -83,7 +84,7 @@ app.get('/tasks/:id', async (req, res) => {
         const client = await pool.connect()
         var result = await client.query('SELECT * FROM todo WHERE id=$1', [req.params.id]);   
         if (!result || result.rowCount == 0) {
-            throw new Error(`No task with id ${req.params.id}.`);
+            throw new HttpError(404, `No task with id ${req.params.id}.`)
         }
 
         res.type('application/json');
@@ -91,10 +92,9 @@ app.get('/tasks/:id', async (req, res) => {
         client.release();
     } catch (err) {
         if('error' in err) {
-            err = err.error;
+            err.message = err.error;
         }    
-        //console.error(err);
-        res.status(400).send({success : false, error : err.message});
+        res.status(err.statusCode || 400).send({success : false, error : err.message});
     }
 });
 
@@ -104,7 +104,7 @@ app.put('/tasks/:id', async (req, res) => {
 
         let bodyKeys = Object.keys(req.body); 
         if(bodyKeys.length == 0) {
-            throw new Error(`No body parameters provided.`);
+            throw new HttpError(400, `No body parameters provided.`);
         }
 
         let resParams = [];
@@ -132,7 +132,7 @@ app.put('/tasks/:id', async (req, res) => {
         // Retrieve the task data from todo table after update.
         result = await client.query('SELECT * FROM todo WHERE id=$1', [req.params.id]);   
         if (!result) {
-            throw new Error('Task updated successfully, but cannot retrieve updated task data from database.');
+            throw new HttpError(503, 'Task updated successfully, but cannot retrieve updated task data from database.');
         }
 
         // Response body is the updated task.
@@ -144,7 +144,7 @@ app.put('/tasks/:id', async (req, res) => {
             err = err.error;
         }    
         //console.error(err);
-        res.status(400).send({success : false, error : err.message});
+        res.status(err.statusCode || 400).send({success : false, error : err.message});
     }
 });
 
@@ -157,11 +157,11 @@ app.post('/tasks', async (req, res) => {
         } else if(Object.keys(req.body).length == 1 && req.body.item) {
             var result = await client.query('INSERT INTO todo(item) VALUES($1) RETURNING id', [req.body.item]);   
         } else {
-            throw new Error('Body must contain a \'item\' field.');
+            throw new HttpError(400, 'Body must contain a \'item\' field.');
         }
 
         if (!result) {
-            throw new Error('Task cannot be inserted into datbase.');
+            throw new HttpError(503, 'Task cannot be inserted into datbase.');
         }
 
         // Retrieve the new task data from todo table after inserted.
@@ -179,7 +179,7 @@ app.post('/tasks', async (req, res) => {
             err = err.error;
         }    
         //console.error(err);
-        res.status(400).send({success : false, error : err.message});
+        res.status(err.statusCode || 400).send({success : false, error : err.message});
     }
 });
 
@@ -188,7 +188,7 @@ app.delete('/tasks/:id', async (req, res) => {
         const client = await pool.connect()
         var result = await client.query('DELETE FROM todo WHERE id=$1', [req.params.id]);   
         if (!result || result.rowCount == 0) {
-            throw new Error(`No task exists with id ${req.params.id}.`);
+            throw new HttpError(404, `No task exists with id ${req.params.id}.`);
         }
 
         // Response body is the updated task.
@@ -200,7 +200,7 @@ app.delete('/tasks/:id', async (req, res) => {
             err = err.error;
         }    
         //console.error(err);
-        res.status(400).send({success : false, error : err.message});
+        res.status(err.statusCode || 400).send({success : false, error : err.message});
     }
 });
 
