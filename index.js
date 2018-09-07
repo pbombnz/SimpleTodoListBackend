@@ -126,7 +126,7 @@ app.put('/tasks/:id', async (req, res) => {
         var result = await client.query(resQuery, resParams); 
         // Although unlikely to occur, failure to retrieve results will produce an error.   
         if (!result || result.rowCount == 0) {
-            throw new Error(`No task updated as no task exists with id ${req.params.id}.`);
+            throw new HttpError(404,`No task updated as no task exists with id ${req.params.id}.`);
         }
 
         // Retrieve the task data from 'todo' table after task has updated.
@@ -171,14 +171,14 @@ app.post('/tasks', async (req, res) => {
 
         // Although unlikely to occur, failure to retrieve results will produce an error.
         if (!result) {
-            throw new HttpError(503, 'Task cannot be inserted into datbase.');
+            throw new HttpError(503, 'Task cannot be inserted into database.');
         }
 
         // Retrieve the new task data from todo table after inserted.
         result = await client.query('SELECT * FROM todo WHERE id=$1', [result.rows[0].id]);   
         // Although unlikely to occur, failure to retrieve results will produce an error.
         if (!result) {
-            throw new Error('Task inserted successfully, but cannot retrieve new task data from database.');
+            throw new HttpError(503, 'Task inserted successfully, but cannot retrieve new task data from database.');
         }
 
         // Response body is the new task.
