@@ -284,7 +284,7 @@ $(document)
                 deleteTask(task.id,
                     function(result, status, jqXHR) { // Success
                         $this.data('li').effect('puff', function() { 
-                            $this.remove(); 
+                            $this.data('li').remove(); 
                         });
                     },
                     function(jqXHR, textStatus, errorThrown) { //Failed
@@ -496,6 +496,7 @@ $(document)
 
     // Click event when delete button is clicked within any task.
     $('.sortlist').on('click','.delete',function() {
+
         $('#delete-confirm-todo')
             .data('li', $(this).parent('li')) // The <li> object of the todo task.
             .data('group', $(this).parent('li').parent().attr('id')) // the parent's div container ID (so we know if its a completed task or not).
